@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>云南白药 (000538.SZ) 行情数据</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <style>
+    :root {
+      --bg-color: #f5f7fa;
+      --card-bg: #fff;
+      --text-primary: #1a1a2e;
+      --text-secondary: #666;
+      --up-color: #e74c3c;
+      --down-color: #2ecc71;
+      --border-color: #e8ecf1;
+      --accent: #3498db;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .header-left h1 {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .header-left .subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    .header-right {
+      text-align: right;
+    }
+    .current-price {
+      font-size: 36px;
+      font-weight: 700;
+    }
+    .price-change {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .up { color: var(--up-color); }
+    .down { color: var(--down-color); }
+
+    /* Summary Cards */
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid var(--border-color);
+    }
+    .card-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .card-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .card-sub {
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* Charts */
+    .chart-section {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid var(--border-color);
+    }
+    .chart-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding-left: 12px;
+      border-left: 4px solid var(--accent);
+    }
+    .chart-container {
+      width: 100%;
+      height: 480px;
+    }
+    .chart-container-sm {
+      width: 100%;
+      height: 320px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    .footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>云南白药 (000538.SZ)</h1>
+      <div class="subtitle">深圳证券交易所 | 医药制造 | 近一年行情数据</div>
+    </div>
+    <div class="header-right">
+      <div class="current-price" id="currentPrice">--</div>
+      <div class="price-change" id="priceChange">--</div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="card">
+      <div class="card-label">最高价</div>
+      <div class="card-value" id="highPrice">--</div>
+    </div>
+    <div class="card">
+      <div class="card-label">最低价</div>
+      <div class="card-value" id="lowPrice">--</div>
+    </div>
+    <div class="card">
+      <div class="card-label">年初至今涨跌</div>
+      <div class="card-value" id="ytdChange">--</div>
+      <div class="card-sub" id="ytdChangeSub"></div>
+    </div>
+    <div class="card">
+      <div class="card-label">总成交量</div>
+      <div class="card-value" id="totalVol">--</div>
+      <div class="card-sub">万股</div>
+    </div>
+    <div class="card">
+      <div class="card-label">总成交额</div>
+      <div class="card-value" id="totalAmt">--</div>
+      <div class="card-sub">万元</div>
+    </div>
+    <div class="card">
+      <div class="card-label">交易日数</div>
+      <div class="card-value" id="tradeDays">--</div>
+    </div>
+  </div>
+
+  <!-- K-Line + Volume Chart -->
+  <div class="chart-section">
+    <div class="chart-title">K线图与成交量</div>
+    <div id="klineChart" class="chart-container"></div>
+  </div>
+
+  <!-- Two Column Charts -->
+  <div class="two-col">
+    <div class="chart-section">
+      <div class="chart-title">每日涨跌幅</div>
+      <div id="pctChart" class="chart-container-sm"></div>
+    </div>
+    <div class="chart-section">
+      <div class="chart-title">收盘价走势</div>
+      <div id="closeChart" class="chart-container-sm"></div>
+    </div>
+  </div>
+
+  <!-- MA Trend Chart -->
+  <div class="chart-section">
+    <div class="chart-title">移动平均线趋势 (MA5 / MA20 / MA60)</div>
+    <div id="maChart" class="chart-container"></div>
+  </div>
+</div>
+
+<div class="footer">
+  数据来源：Tushare Pro | 数据仅供展示参考，不构成投资建议
+</div>
+
+<script>
+// 嵌入式数据（由后端生成）
+const stockData = DATA_PLACEHOLDER;
+
+const dates = stockData.map(d => d.trade_date);
+const klineData = stockData.map(d => [d.open, d.close, d.low, d.high]);
+const volumes = stockData.map(d => d.vol);
+const pctChanges = stockData.map(d => d.pct_chg);
+const closes = stockData.map(d => d.close);
+const amounts = stockData.map(d => d.amount);
+
+// 计算MA
+function calcMA(data, period) {
+  const ma = [];
+  for (let i = 0; i < data.length; i++) {
+    if (i < period - 1) { ma.push('-'); continue; }
+    let sum = 0;
+    for (let j = 0; j < period; j++) sum += data[i - j];
+    ma.push(parseFloat((sum / period).toFixed(2)));
+  }
+  return ma;
+}
+const ma5 = calcMA(closes, 5);
+const ma20 = calcMA(closes, 20);
+const ma60 = calcMA(closes, 60);
+
+// 填充摘要卡片
+const first = stockData[0];
+const last = stockData[stockData.length - 1];
+const totalChange = ((last.close - first.close) / first.close * 100).toFixed(2);
+const totalVol = (volumes.reduce((a,b)=>a+b,0) / 10000).toFixed(2);
+const totalAmt = (amounts.reduce((a,b)=>a+b,0) / 10000).toFixed(2);
+const high = Math.max(...stockData.map(d=>d.high));
+const low = Math.min(...stockData.map(d=>d.low));
+
+const signClass = totalChange >= 0 ? 'up' : 'down';
+const sign = totalChange >= 0 ? '+' : '';
+
+document.getElementById('currentPrice').textContent = last.close.toFixed(2);
+document.getElementById('currentPrice').className = 'current-price ' + signClass;
+document.getElementById('priceChange').textContent = sign + totalChange + '%';
+document.getElementById('priceChange').className = 'price-change ' + signClass;
+
+document.getElementById('highPrice').textContent = high.toFixed(2);
+document.getElementById('lowPrice').textContent = low.toFixed(2);
+document.getElementById('ytdChange').textContent = sign + totalChange + '%';
+document.getElementById('ytdChange').className = 'card-value ' + signClass;
+document.getElementById('totalVol').textContent = totalVol;
+document.getElementById('totalAmt').textContent = totalAmt;
+document.getElementById('tradeDays').textContent = stockData.length;
+
+// 颜色函数
+function upColor() { return '#e74c3c'; }
+function downColor() { return '#2ecc71'; }
+
+const volColors = stockData.map((d, i) => {
+  if (i === 0) return upColor();
+  return d.close >= stockData[i-1].close ? upColor() : downColor();
+});
+
+const pctColors = stockData.map((d, i) => {
+  return d.pct_chg >= 0 ? upColor() : downColor();
+});
+
+// 1. K-Line + Volume Chart
+const klineChart = echarts.init(document.getElementById('klineChart'));
+klineChart.setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'cross' }, backgroundColor: '#fff', borderColor: '#ddd', textStyle: { color: '#333' } },
+  legend: { data: ['K线', '成交量'], bottom: 0 },
+  grid: [
+    { left: '3%', right: '3%', top: '5%', height: '60%' },
+    { left: '3%', right: '3%', top: '72%', height: '20%' }
+  ],
+  xAxis: [
+    { type: 'category', data: dates, scale: true, boundaryGap: false, axisLine: { lineStyle: { color: '#999' } }, splitLine: { show: false }, min: 'dataMin', max: 'dataMax' },
+    { type: 'category', data: dates, gridIndex: 1, scale: true, boundaryGap: false, axisLine: { lineStyle: { color: '#999' } }, axisLabel: { show: false }, splitLine: { show: false }, min: 'dataMin', max: 'dataMax' }
+  ],
+  yAxis: [
+    { scale: true, splitLine: { lineStyle: { color: '#eee' } } },
+    { scale: true, gridIndex: 1, splitNumber: 2, axisLabel: { show: false }, axisLine: { show: false }, axisTick: { show: false }, splitLine: { show: false } }
+  ],
+  dataZoom: [
+    { type: 'inside', xAxisIndex: [0, 1], start: 0, end: 100 },
+    { show: true, xAxisIndex: [0, 1], type: 'slider', bottom: 30, start: 0, end: 100 }
+  ],
+  series: [
+    {
+      name: 'K线', type: 'candlestick', data: klineData,
+      itemStyle: { color: upColor(), color0: downColor(), borderColor: upColor(), borderColor0: downColor() }
+    },
+    {
+      name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: volumes,
+      itemStyle: { color: function(p) { return volColors[p.dataIndex]; } }
+    }
+  ]
+});
+
+// 2. Daily Percentage Change Chart
+const pctChart = echarts.init(document.getElementById('pctChart'));
+pctChart.setOption({
+  tooltip: { trigger: 'axis', formatter: function(p) { return p[0].axisValue + '<br/>涨跌幅: ' + p[0].value.toFixed(2) + '%'; }, backgroundColor: '#fff', borderColor: '#ddd', textStyle: { color: '#333' } },
+  grid: { left: '3%', right: '3%', top: '5%', bottom: '15%', containLabel: true },
+  xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#999' } }, axisLabel: { rotate: 45, fontSize: 10 } },
+  yAxis: { type: 'value', axisLabel: { formatter: '{value}%' }, splitLine: { lineStyle: { color: '#eee' } } },
+  dataZoom: [{ type: 'inside', start: 0, end: 100 }, { type: 'slider', bottom: 0, start: 0, end: 100 }],
+  series: [{ type: 'bar', data: pctChanges, itemStyle: { color: function(p) { return pctColors[p.dataIndex]; } } }]
+});
+
+// 3. Close Price Trend Chart
+const closeChart = echarts.init(document.getElementById('closeChart'));
+closeChart.setOption({
+  tooltip: { trigger: 'axis', backgroundColor: '#fff', borderColor: '#ddd', textStyle: { color: '#333' } },
+  grid: { left: '3%', right: '3%', top: '5%', bottom: '15%', containLabel: true },
+  xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#999' } }, axisLabel: { rotate: 45, fontSize: 10 } },
+  yAxis: { type: 'value', scale: true, splitLine: { lineStyle: { color: '#eee' } } },
+  dataZoom: [{ type: 'inside', start: 0, end: 100 }, { type: 'slider', bottom: 0, start: 0, end: 100 }],
+  series: [{ type: 'line', data: closes, smooth: true, lineStyle: { width: 2, color: '#3498db' }, areaStyle: { color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops:[{offset:0,color:'rgba(52,152,219,0.2)'},{offset:1,color:'rgba(52,152,219,0.0)'}] } }, symbol: 'none' }]
+});
+
+// 4. MA Trend Chart
+const maChart = echarts.init(document.getElementById('maChart'));
+maChart.setOption({
+  tooltip: { trigger: 'axis', backgroundColor: '#fff', borderColor: '#ddd', textStyle: { color: '#333' } },
+  legend: { data: ['收盘价', 'MA5', 'MA20', 'MA60'], bottom: 0 },
+  grid: { left: '3%', right: '3%', top: '5%', bottom: '15%', containLabel: true },
+  xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#999' } }, axisLabel: { rotate: 45, fontSize: 10 } },
+  yAxis: { type: 'value', scale: true, splitLine: { lineStyle: { color: '#eee' } } },
+  dataZoom: [{ type: 'inside', start: 0, end: 100 }, { type: 'slider', bottom: 30, start: 0, end: 100 }],
+  series: [
+    { name: '收盘价', type: 'line', data: closes, lineStyle: { width: 1.5, color: '#666' }, symbol: 'none' },
+    { name: 'MA5', type: 'line', data: ma5, lineStyle: { width: 2, color: '#e74c3c' }, symbol: 'none' },
+    { name: 'MA20', type: 'line', data: ma20, lineStyle: { width: 2, color: '#3498db' }, symbol: 'none' },
+    { name: 'MA60', type: 'line', data: ma60, lineStyle: { width: 2, color: '#f39c12' }, symbol: 'none' }
+  ]
+});
+
+// Resize handling
+window.addEventListener('resize', () => {
+  klineChart.resize();
+  pctChart.resize();
+  closeChart.resize();
+  maChart.resize();
+});
+</script>
+
+</body>
+</html>

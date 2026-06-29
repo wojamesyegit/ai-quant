@@ -1,0 +1,11 @@
+# WorkBuddy
+.workbuddy/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Data cache
+*.token
