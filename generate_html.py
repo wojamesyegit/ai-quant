@@ -28,7 +28,7 @@ def clr(v):
 # 计算年度均价显示
 yearly_lines = []
 for y, v in sorted(summary["yearly_avg"].items()):
-    yearly_lines.append(f"<tr><td>{y}</td><td class='dn'>{v['avg_close']:.2f}元</td><td>{v['total_vol']:.0f}万手</td></tr>")
+    yearly_lines.append(f'<tr><td>{y}</td><td class="dn">{v["avg_close"]:.2f}元</td><td>{v["total_vol"]:.0f}万手</td></tr>')
 
 # 基本面数据
 yearly_table = "\n".join(yearly_lines)
